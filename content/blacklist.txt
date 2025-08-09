@@ -1,0 +1,3 @@
+# Beispiel:
+# Lisa|Steffi,Tanja,Kim
+# Max Mustermann|Peter Pan,Tom Tester
