@@ -12,7 +12,7 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
-    if ($password === OWNER_PASSWORD) {
+    if (md5($password) === OWNER_PASSWORD) {
         login_owner();
         header('Location: index.php');
         exit;

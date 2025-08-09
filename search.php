@@ -62,7 +62,7 @@ if ($category !== null) { $titleBits[] = 'Kategorie: ' . htmlspecialchars($categ
 $pageTitle = empty($titleBits) ? 'Suche' : implode(' / ', $titleBits);
 
 
-$archive = get_post_archive();
+$archive = get_post_archive(is_logged_in());
 template_header('Suche – ' . $pageTitle);
 ?>
 

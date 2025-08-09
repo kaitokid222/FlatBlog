@@ -2,10 +2,7 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-if (!is_logged_in()) {
-    header('Location: login.php');
-    exit;
-}
+loginCheck();
 
 template_header('Admin Control Panel');
 ?>
@@ -17,6 +14,11 @@ template_header('Admin Control Panel');
         <li><a href="admin_blacklist.php">🧰 Blacklist verwalten</a></li>
         <li><a href="index.php">🏠 Zur Startseite</a></li>
         <li><a href="logout.php">🔒 Logout</a></li>
+		<!-- More Bulletproof, aber sieht halt aus wie es aussieht -> CSS bauen! -->
+		<!--<form action="logout.php" method="post" style="display:inline">
+		  <input type="hidden" name="csrf" value="<?= $_SESSION['csrf'] ?? '' ?>">
+		  <button>🔒 Logout</button>
+		</form>-->
     </ul>
 
     <h3>Quick Infos</h3>
@@ -24,3 +26,4 @@ template_header('Admin Control Panel');
 </div>
 <?php
 template_footer();
+?>

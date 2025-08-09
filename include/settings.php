@@ -5,11 +5,15 @@ define('CONTENT_DIR', __DIR__ . '/../content/texts/');
 // Maximale Länge der Preview (Zeichen)
 define('PREVIEWLENGTH', 300);
 
+// Maximale Idlezeit einer Session
+define('SESSION_IDLE_LIMIT', 1800);
+
 // Kategorienliste (Komma-getrennt)
 define('CATEGORIES_FILE', __DIR__ . '/../content/categories.txt');
 
 // Passwort für den Blog-Owner (für Bearbeiten/Erstellen)
-define('OWNER_PASSWORD', '123');
+$opw = md5("123");
+define('OWNER_PASSWORD', $opw);
 
 // Pfad zur Blacklist
 define('BLACKLIST_FILE', __DIR__ . '/../content/blacklist.txt');

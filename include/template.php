@@ -50,7 +50,7 @@ function template_footer() {
     echo '<a href="impressum.php" title="Impressum">ℹ️</a>' . "\n";
     echo $acpLink . "\n";
     echo $authLink . "\n";
-
+	echo '<meta name="csrf-token" content="' . htmlspecialchars($_SESSION['csrf'], ENT_QUOTES) . '">' . "\n";
     echo <<<HTML
     </div>
     <p>&copy; 2025 David</p>
