@@ -1,0 +1,24 @@
+Options -Indexes -ExecCGI
+
+DirectoryIndex index.html
+
+<LimitExcept GET POST HEAD>
+  Require all denied
+</LimitExcept>
+
+<FilesMatch "\.(php|phtml|phar)$">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.ht">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "no-referrer-when-downgrade"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header set X-Frame-Options "SAMEORIGIN"
+  # X-XSS-Protection ist alt, aber schadet nicht auf alten Browsern:
+  Header set X-XSS-Protection "1; mode=block"
+</IfModule>

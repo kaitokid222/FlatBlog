@@ -48,8 +48,8 @@ foreach ($posts as $post){
 	}
 ?>
     <article>
-        <h2><a href="entry.php?id=<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?></a></h2>
-        <small><?= $post['created_at'] ?> 
+        <h2><a href="<?= e(url_entry($post['id']))?>"><?= e($post['title']) ?></a></h2>
+        <small><?= e($post['created_at']) ?> 
 		<?php if ($visLabel && $visLabel != ''): ?>
 				<span style="color:<?= $visColor ?>; margin-left:0.5rem;">
 					[ <?= $visLabel ?> ]
@@ -65,7 +65,7 @@ foreach ($posts as $post){
 		</p>
 		<?php endif; ?>
         <?= get_post_preview_uniform($post['content'], PREVIEWLENGTH) ?>
-		<p><a class="button" href="entry.php?id=<?= $post['id'] ?>">Weiterlesen</a></p>
+		<p><a class="button" href="<?= e(url_entry($post['id']))?>">Weiterlesen</a></p>
     </article>
 <?php } 
 if (is_logged_in()) {
@@ -84,7 +84,9 @@ if (is_logged_in()) {
         <li>
             <details>
                 <summary>
-                    <a href="search.php?year=<?= urlencode($year) ?>">
+				<?php // url_search(?int $year=null, ?int $month=null, ?string $category=null, ?int $page=null) ?>
+                    <a href="<?= url_search(urlencode($year)) ?>">
+
                         <?= htmlspecialchars($year) ?> (<?= (int)$total ?>)
                     </a>
                 </summary>

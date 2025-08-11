@@ -1,5 +1,23 @@
 <?php
 
+function get_content_id_from_path(string $path): int {
+	// ID finden: ?id=2  oder  /entry.php/2  ODER (zur Not) /entry/2, falls Rewrite aktiv ist
+	$id = 0;
+
+	if (isset($_GET['id'])) {
+		$id = (int)$_GET['id'];
+	} elseif (!empty($_SERVER['PATH_INFO']) && preg_match('#^/(\d+)/?$#', $_SERVER['PATH_INFO'], $m)) {
+		$id = (int)$m[1];
+	} else {
+		// Falls die Anfrage sowieso via Rewrite hier landete (Apache setzt oft REDIRECT_URL/REQUEST_URI)
+		$path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+		if (preg_match('#/' . $path . '/(\d+)/?$#', $path, $m)) {
+			$id = (int)$m[1];
+		}
+	}
+	return $id;
+}
+
 // Sichtbarkeit aus Zeile parsen ("Visibility: Visible/Hidden/…")
 function parse_visibility_line(string $line): ?string {
     if (preg_match('/^visibility\s*:\s*(.+)$/i', trim($line), $m)) {

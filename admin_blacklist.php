@@ -2,10 +2,7 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-if (!function_exists('is_logged_in') || !is_logged_in()) {
-    header('Location: login.php');
-    exit;
-}
+loginCheck();
 
 $info = '';
 $error = '';
@@ -28,11 +25,11 @@ template_header('Blacklist verwalten');
 <div class="main-content">
     <h2>Blacklist verwalten</h2>
 
-    <?php if ($info): ?><p style="color:green;"><?= htmlspecialchars($info) ?></p><?php endif; ?>
-    <?php if ($error): ?><p style="color:red;"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+    <?php if ($info): ?><p style="color:green;"><?= e($info) ?></p><?php endif; ?>
+    <?php if ($error): ?><p style="color:red;"><?= e($error) ?></p><?php endif; ?>
 
     <form method="post">
-        <p><textarea name="raw" rows="16" style="width:100%;"><?= htmlspecialchars($current) ?></textarea></p>
+        <p><textarea name="raw" rows="16" style="width:100%;"><?= e($current) ?></textarea></p>
         <p>
             <button type="submit">💾 Speichern</button>
             <a class="button" href="acp.php">⚙️ Zurück zum ACP</a>

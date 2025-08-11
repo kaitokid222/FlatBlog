@@ -2,15 +2,8 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-if (!is_logged_in()) {
-    header('Location: login.php');
-    exit;
-}
+loginCheck(false);
 
-// CSRF-Token bereitstellen
-if (empty($_SESSION['csrf'])) {
-    $_SESSION['csrf'] = bin2hex(random_bytes(16));
-}
 $csrf = $_SESSION['csrf'];
 
 // Einzel-Löschung aus der Liste
@@ -31,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['list_delete'])) {
 $allPosts = get_all_posts(); // sollte bereits nach created_at DESC sortiert sein
 $total    = count($allPosts);
 $perPage  = 50;
-
 $page  = max(1, (int)($_GET['page'] ?? 1));
 $pages = max(1, (int)ceil($total / $perPage));
 if ($page > $pages) $page = $pages;

@@ -8,6 +8,15 @@ define('PREVIEWLENGTH', 300);
 // Maximale Idlezeit einer Session
 define('SESSION_IDLE_LIMIT', 1800);
 
+// Pfad hart setzen (inkl. Unterordner, ohne abschließenden slash):
+// Wenn auskommentiert -> auto-detection
+// define('BASE_URL', 'https://example.com/blog');
+// define('BASE_URL', 'localhost');
+
+// Mod Rewrite in Apache oder Location-config in Nginx verfügbar?
+//define('PRETTY_URLS', false);
+define('PRETTY_URLS', true);
+
 // Kategorienliste (Komma-getrennt)
 define('CATEGORIES_FILE', __DIR__ . '/../content/categories.txt');
 

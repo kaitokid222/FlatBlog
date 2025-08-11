@@ -16,7 +16,7 @@ require_once 'include/template.php';
  * - /search.php?category=php
  * - /search.php?year=2025&category=markdown
  */
-
+$_GET['page'] = norm_int($_GET['page'] ?? null) ?? 1;
 [$year, $month] = normalize_year_month($_GET);
 $category = normalize_category($_GET);
 $all = get_all_posts();
@@ -93,7 +93,7 @@ template_header('Suche – ' . $pageTitle);
 	}
 ?>
     <article>
-        <h2><a href="entry.php?id=<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?></a></h2>
+        <h2><a href="<?= e(url_entry($post['id']))?>"><?= e($post['title']) ?></a></h2>
         <small><?= $post['created_at'] ?> 
 		<?php if ($visLabel): ?>
 				<span style="color:<?= $visColor ?>; margin-left:0.5rem;">
@@ -110,7 +110,7 @@ template_header('Suche – ' . $pageTitle);
 		</p>
 		<?php endif; ?>
         <?= get_post_preview_uniform($post['content'], PREVIEWLENGTH) ?>
-		<p><a class="button" href="entry.php?id=<?= $post['id'] ?>">Weiterlesen</a></p>
+		<p><a class="button" href="<?= e(url_entry($post['id']))?>">Weiterlesen</a></p>
     </article>
     <?php } 
 	}?>
@@ -201,3 +201,10 @@ function normalize_category(array $get): ?string {
     $cat = trim((string)$cat);
     return $cat === '' ? null : $cat;
 }
+
+function norm_int(?string $v): ?int {
+    if ($v === null || $v === '' || $v === '-') return null;
+    $n = (int)$v;
+    return $n > 0 ? $n : null;
+}
+?>

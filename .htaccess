@@ -1,0 +1,27 @@
+RewriteEngine On
+
+# Wenn im Unterordner (z.B. /blog), auskommentieren:
+# RewriteBase /blog/
+
+# 0) Echte Dateien/Ordner NICHT anfassen (CSS/JS/Images)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 1) Startseite (/ oder /home) -> index.php
+RewriteRule ^$ index.php [L,QSA]
+RewriteRule ^home/?$ index.php [L,QSA]
+
+# 2) Einfache Skripte als „Pretty Names“ (optional)
+RewriteRule ^(login|logout|acp|submit|rss|impressum|admin_blacklist)/?$ $1.php [L,QSA]
+
+# 3) Ressource + ID, z.B. /entry/2, /edit/2, /delete/2
+RewriteRule ^(entry|edit|delete)/([0-9]+)/?$ $1.php?id=$2 [L,QSA]
+RewriteRule ^(entrylist)/([0-9]+)/?$ $1.php?page=$2 [L,QSA]
+
+# 4) Pagination: /page/2 -> index.php?page=2
+RewriteRule ^page/([0-9]+)/?$ index.php?page=$1 [L,QSA]
+
+# 7) Suche:
+#    - /search?q=term
+RewriteRule ^search(?:/([0-9]{4}|-)(?:/([0-9]{1,2}|-)(?:/([^/]+|-)(?:/page/([0-9]+))?)?)?)?/?$ search.php?year=$1&month=$2&category=$3&page=$4 [L,QSA,B]

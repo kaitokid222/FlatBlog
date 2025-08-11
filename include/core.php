@@ -1,10 +1,70 @@
 <?php
+
 require_once 'settings.php';
 
-// Session immer früh starten
-/*if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}*/
+if (!defined('BASE_URL')) {
+    function _detect_base_url(): string {
+        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? null) == 443);
+        $scheme = $https ? 'https' : 'http';
+        $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base   = rtrim(str_replace('\\','/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+        $base   = ($base === '' || $base === '.') ? '' : $base; // '' im Webroot, sonst z.B. '/blog'
+        return $scheme.'://'.$host.$base;
+    }
+    define('BASE_URL', _detect_base_url());
+}
+
+// Baut absolute URLs aus einem Pfad
+function site_url(string $path = ''): string {
+    return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
+}
+
+// Bequemer Redirect
+function redirect_to(string $path = ''): void {
+    header('Location: '.site_url($path), true, 302);
+    exit;
+}
+
+// PHP-Version nicht im Header verraten
+ini_set('expose_php','0');
+
+// Fehler-Handling-Modus
+$isLive = false; // true = Produktion, false = Debug
+
+// Log-Datei-Pfad festlegen
+$logDir  = __DIR__; // include/
+$logFile = $logDir . '/logs-php.log';
+
+// Falls Log-Datei nicht existiert → anlegen (mit Schreibrechten für PHP)
+if (!file_exists($logFile)) {
+    if (is_writable($logDir)) {
+        touch($logFile);
+        chmod($logFile, 0660);
+    }
+}
+
+// Fehlerbehandlung setzen
+if ($isLive) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '0');
+
+    if (is_writable($logFile)) {
+        ini_set('log_errors', '1');
+        ini_set('error_log', $logFile);
+    } else {
+        ini_set('log_errors', '0');
+    }
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+
+    if (is_writable($logFile)) {
+        ini_set('log_errors', '1');
+        ini_set('error_log', $logFile);
+    }
+}
+// Kein HTML im Log
+ini_set('html_errors', '0');
 
 // ---- Secure Session Bootstrap ----
 function secure_session_boot(): void {
@@ -90,7 +150,12 @@ if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
 
+function e(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 require_once __DIR__.'/modules/auth.php';
+require_once __DIR__.'/modules/helpers.php';
 require_once __DIR__.'/modules/text.php';
 require_once __DIR__.'/modules/media.php';
 require_once __DIR__.'/modules/content.php';

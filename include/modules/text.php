@@ -214,11 +214,13 @@ function perform_markdown(string $text): string {
 
     // 4) Inline-Formatierungen (nach Blockbau)
     // Links [text](url)
-    $html = preg_replace_callback('/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/', function ($m) {
-        $txt = $m[1];
-        $url = $m[2];
-        return '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $txt . '</a>';
-    }, $html);
+	$html = preg_replace_callback('/\[(.+?)\]\(([^)\s]+)\)/', function ($m) {
+		$txt = $m[1]; $url = $m[2];
+		$parts = parse_url($url);
+		$scheme = strtolower($parts['scheme'] ?? '');
+		if (!in_array($scheme, ['http','https','mailto'], true)) return htmlspecialchars($txt, ENT_QUOTES);
+		return '<a href="'.htmlspecialchars($url,ENT_QUOTES).'" target="_blank" rel="noopener noreferrer nofollow ugc">'.$txt.'</a>';
+	}, $html);
 
     // Fettschrift **text**
     $html = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html);

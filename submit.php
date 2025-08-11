@@ -2,10 +2,7 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-if (!is_logged_in()) {
-    header('Location: login.php');
-    exit;
-}
+loginCheck();
 
 $allCats = load_categories();
 

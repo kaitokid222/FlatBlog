@@ -2,7 +2,7 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = get_content_id_from_path('entry');
 
 $posts = get_all_posts();
 $post = null;

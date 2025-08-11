@@ -2,8 +2,9 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-if (!is_logged_in()) { header('Location: login.php'); exit; }
+$id = get_content_id_from_path('edit');
+
+loginCheck();
 
 // CSRF-Token
 if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(16)); }

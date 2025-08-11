@@ -1,0 +1,44 @@
+server {
+  server_name example.com;
+  root /var/www/site/public;   # passe an
+  index index.html;            # bevorzugt index.html
+
+  # 1) Kein Directory Listing
+  autoindex off;
+
+  # 2) Nur GET/HEAD/POST (global)
+  if ($request_method !~ ^(GET|HEAD|POST)$) { return 405; }
+
+  # 3) Security-Header (falls du sie nicht schon via Proxy setzt)
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header Referrer-Policy "no-referrer-when-downgrade" always;
+  add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+  add_header X-Frame-Options "SAMEORIGIN" always;
+
+  # 4) Dotfiles sperren, aber .well-known erlauben
+  location ~ /\.(?!well-known)(.*)$ { deny all; }
+
+  # 5) Backups/Meta-Krempel sperren
+  location ~* \.(bak|old|swp|tmp)$         { deny all; }
+  location ~* (^|/)(composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|gulpfile\.js|Gruntfile\.js|webpack\.config\.js|\.env)$ {
+    deny all;
+  }
+
+  # 6) Include-Ordner komplett vom Web trennen
+  location ^~ /include/          { deny all; }
+  location ^~ /include/modules/  { deny all; }
+
+  # 7) PHP: nur außerhalb der gesperrten Pfade ausführen
+  #    (spezifische Verbote kommen VOR diese Location)
+  location ~ \.php$ {
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_pass unix:/run/php/php8.2-fpm.sock;  # anpassen
+    fastcgi_intercept_errors on;
+  }
+
+  # 8) Fallbacks, um kein Quatsch zu serven
+  location / {
+    try_files $uri $uri/ =404;
+  }
+}
