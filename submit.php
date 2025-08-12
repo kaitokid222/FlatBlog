@@ -36,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo "<code>![Bildbeschreibung]($url)</code><br><br>";
                 echo "<img src=\"$url\" style=\"max-width:100%;\"><hr>";
             }
-            echo "<p><a class=\"button\" href=\"entry.php?id=$newId\">Beitrag ansehen</a></p>";
+            echo "<p><a class=\"button\" href=\"" . e(url_entry($newId)) . "\">Beitrag ansehen</a></p>";
             template_footer();
             exit;
         } else {
-            header('Location: entry.php?id=' . $newId);
+            header('Location: ' . e(url_entry($newId)));
             exit;
         }
     } else {

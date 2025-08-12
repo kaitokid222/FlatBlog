@@ -109,17 +109,18 @@ if (is_logged_in()) {
     <div style="margin-top: 2rem; display: flex; gap: 1rem;">
         <?php if ($prevId !== null): ?>
             <a class="button" href="entry.php?id=<?= $prevId ?>">← Vorheriger</a>
+            <a class="button" href="<?= e(url_entry($prevId)); ?>">← Vorheriger</a>
         <?php endif; ?>
 
         <?php if ($randomId !== null): ?>
-            <a class="button" href="entry.php?id=<?= $randomId ?>">🎲 Zufälliger</a>
+            <a class="button" href="<?= e(url_entry($randomId)); ?>">🎲 Zufälliger</a>
         <?php endif; ?>
 
         <?php if ($nextId !== null): ?>
-            <a class="button" href="entry.php?id=<?= $nextId ?>">Nächster →</a>
+            <a class="button" href="<?= e(url_entry($nextId)); ?>">Nächster →</a>
         <?php endif; ?>
     </div>
-	<p><a class="button" href="index.php">Zurück zur Übersicht</a></p>
+	<p><a class="button" href="<?= site_url(); ?>">Zurück zur Übersicht</a></p>
 </div>
 <?php
 template_footer();

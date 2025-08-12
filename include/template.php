@@ -27,10 +27,10 @@ function template_footer() {
     $acpLink  = '';
     if (function_exists('is_logged_in')) {
         if (is_logged_in()) {
-            $authLink = '<a href="logout.php" title="Logout">🔒</a>';
-            $acpLink  = '<a href="acp.php" title="Admin Control Panel">⚙️</a>';
+            $authLink = '<a href="' . e(url_logout()) .'" title="Logout">🔒</a>';
+            $acpLink  = '<a href="' . e(url_acp()) .'" title="Admin Control Panel">⚙️</a>';
         } else {
-            $authLink = '<a href="login.php" title="Login">🔑</a>';
+            $authLink = '<a href="' . e(url_login()) .'" title="Login">🔑</a>';
         }
     }
 
@@ -48,10 +48,10 @@ function template_footer() {
     }
 	
 	if (defined('ALLOW_RSS') && ALLOW_RSS) {
-		echo '<a href="rss.php" title="RSS-Feed">📡</a>' . "\n";
+		echo '<a href="' . e(url_rss()) .'" title="RSS-Feed">📡</a>' . "\n";
 	}
     // Impressum, ACP (nur logged in), Auth
-    echo '<a href="impressum.php" title="Impressum">ℹ️</a>' . "\n";
+    echo '<a href="' . e(url_impressum()) .'" title="Impressum">ℹ️</a>' . "\n";
     echo $acpLink . "\n";
     echo $authLink . "\n";
 	echo '<meta name="csrf-token" content="' . htmlspecialchars($_SESSION['csrf'], ENT_QUOTES) . '">' . "\n";

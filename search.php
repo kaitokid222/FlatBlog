@@ -16,6 +16,11 @@ require_once 'include/template.php';
  * - /search.php?category=php
  * - /search.php?year=2025&category=markdown
  */
+foreach (['year','y','month','m','category','cat'] as $k) {
+    if (isset($_GET[$k]) && $_GET[$k] === '-') {
+        unset($_GET[$k]);
+    }
+}
 $_GET['page'] = norm_int($_GET['page'] ?? null) ?? 1;
 [$year, $month] = normalize_year_month($_GET);
 $category = normalize_category($_GET);
@@ -105,7 +110,7 @@ template_header('Suche – ' . $pageTitle);
 		<?php if ($cats): ?>
 		<p class="cats">
 			<?php foreach ($cats as $c){ ?>
-			<a class="cat-badge" href="search.php?category=<?= urlencode($c) ?>"><?= htmlspecialchars($c) ?></a>
+			<a class="cat-badge" href="<?= e(url_search(null, null, $c)) ?>"><?= e($c) ?></a>
 		<?php } ?>
 		</p>
 		<?php endif; ?>

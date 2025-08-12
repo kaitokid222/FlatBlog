@@ -1,4 +1,49 @@
 <?php
+/**
+ * Basis-Helfer für statische Skripte mit optional Pretty URLs.
+ * $name ist der Name ohne .php
+ */
+function url_script(string $name): string {
+    if (defined('PRETTY_URLS') && PRETTY_URLS) {
+        return '/' . rawurlencode($name) . '/';
+    }
+
+    if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
+        return '/' . rawurlencode($name) . '.php/';
+    }
+
+    return '/' . rawurlencode($name) . '.php';
+}
+
+// Einzelskripte (nur Wrapper für url_script)
+function url_acp(): string {
+    return url_script('acp');
+}
+
+function url_login(): string {
+    return url_script('login');
+}
+
+function url_logout(): string {
+    return url_script('logout');
+}
+
+function url_submit(): string {
+    return url_script('submit');
+}
+
+function url_rss(): string {
+    return url_script('rss');
+}
+
+function url_impressum(): string {
+    return url_script('impressum');
+}
+
+function url_admin_blacklist(): string {
+    return url_script('admin_blacklist');
+}
+
 
 function url_entry(int $id): string {
     // 1) Admin kann pretty URLs erzwingen

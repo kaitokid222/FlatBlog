@@ -1,7 +1,11 @@
-RewriteEngine On
+# Wird nur gesetzt, wenn .htaccess überhaupt ausgewertet wird
+SetEnv HTACCESS_CANARY 1
 
-# Wenn im Unterordner (z.B. /blog), auskommentieren:
-# RewriteBase /blog/
+# mod_rewrite-Canary setzt nur, wenn mod_rewrite läuft
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^ - [E=REWRITE_CANARY:1]
+</IfModule>
 
 # 0) Echte Dateien/Ordner NICHT anfassen (CSS/JS/Images)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -23,5 +27,5 @@ RewriteRule ^(entrylist)/([0-9]+)/?$ $1.php?page=$2 [L,QSA]
 RewriteRule ^page/([0-9]+)/?$ index.php?page=$1 [L,QSA]
 
 # 7) Suche:
-#    - /search?q=term
+#    - /search?q=magic
 RewriteRule ^search(?:/([0-9]{4}|-)(?:/([0-9]{1,2}|-)(?:/([^/]+|-)(?:/page/([0-9]+))?)?)?)?/?$ search.php?year=$1&month=$2&category=$3&page=$4 [L,QSA,B]
