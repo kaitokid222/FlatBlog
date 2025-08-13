@@ -120,7 +120,7 @@ template_header('Suche – ' . $pageTitle);
     <?php } 
 	}?>
 
-    <p><a class="button" href="index.php">Zurück zur Übersicht</a></p>
+    <p><a class="button" href="<?= site_url(); ?>">Zurück zur Übersicht</a></p>
 </div>
 
 <div class="sidebar">
@@ -131,7 +131,8 @@ template_header('Suche – ' . $pageTitle);
         <li>
             <details>
                 <summary>
-                    <a href="search.php?year=<?= urlencode($year) ?>">
+                    <a href="<?= url_search(urlencode($year)) ?>">
+
                         <?= htmlspecialchars($year) ?> (<?= (int)$total ?>)
                     </a>
                 </summary>
@@ -139,7 +140,7 @@ template_header('Suche – ' . $pageTitle);
                 <?php foreach ($months as $monthNum => $meta){
                     if ($monthNum === '_total') continue; ?>
                     <li>
-                        <a href="search.php?year=<?= urlencode($year) ?>&month=<?= urlencode((int)$monthNum) ?>">
+                        <a href="<?= url_search($year,$monthNum) ?>">
                             <?= htmlspecialchars($meta['name']) ?> (<?= (int)$meta['count'] ?>)
                         </a>
                     </li>

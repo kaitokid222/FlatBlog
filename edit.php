@@ -37,7 +37,7 @@ $valid_csrf = fn() => hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     if (!$valid_csrf()){
 		$_SESSION['flash_warn'] = "Ungültiger Sicherheits-Token."; 
-		header('Location: edit.php?id='.$id); 
+		header('Location: ' . url_edit($id)); 
 		exit; 
 	}
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         } else {
             // Bilder hochladen/überschreiben (wie gehabt)
             if (!empty($_FILES)) { handle_entry_image_upload($_FILES, $id); }
-            header('Location: entry.php?id=' . $id);
+            header('Location: ' . url_entry($id));
             exit;
         }
     } else {
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 
 /* ---------- BILD LÖSCHEN ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_image'])) {
-    if (!$valid_csrf()) { $_SESSION['flash_warn'] = "Ungültiger Sicherheits-Token."; header('Location: edit.php?id='.$id); exit; }
+    if (!$valid_csrf()) { $_SESSION['flash_warn'] = "Ungültiger Sicherheits-Token."; header('Location: ' . url_edit($id)); exit; }
     $idx = (int)$_POST['delete_image'];           // kommt vom Button-Wert (1 oder 2)
     // Draft sichern (aus aktuellem Formular!)
     $_SESSION['draft_title'] = $_POST['title'] ?? $post['title'];
@@ -98,23 +98,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_image'])) {
         $ok = delete_entry_image($id, $idx);
         $_SESSION['flash_warn'] = $ok ? "Bild {$idx} entfernt." : "Bild {$idx} konnte nicht entfernt werden.";
     }
-    header('Location: edit.php?id=' . $id . '&warn=1'); exit;
+    header('Location: ' . url_edit($id));
+	exit;
 }
 
 /* ---------- BEITRAG LÖSCHEN (separates Formular) ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post'])) {
     if (!$valid_csrf()) {
 		$_SESSION['flash_warn'] = "Ungültiger Sicherheits-Token.";
-		header('Location: edit.php?id='.$id);
+		header('Location: ' . url_edit($id));
 		exit;
 	}
     if (($_POST['confirm'] ?? '') === 'YES') {
         $ok = delete_post($id);
         $_SESSION['flash_info'] = $ok ? "Beitrag #$id wurde gelöscht." : "Beitrag #$id konnte nicht gelöscht werden.";
-        header('Location: index.php'); exit;
+        header('Location: ' . site_url());
+		exit;
     } else {
         $_SESSION['flash_warn'] = "Löschen abgebrochen.";
-        header('Location: edit.php?id='.$id); exit;
+        header('Location: ' . url_edit($id)); exit;
     }
 }
 
@@ -275,7 +277,7 @@ template_header("Beitrag bearbeiten");
 
         <p>
             <button type="submit" name="save" value="1">💾 Speichern</button>
-            <a class="button" href="entry.php?id=<?= $id ?>">Abbrechen</a>
+            <a class="button" href="<?= url_entry($id) ?>">Abbrechen</a>
         </p>
     </form>
 

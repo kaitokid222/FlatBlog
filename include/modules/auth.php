@@ -9,8 +9,10 @@ function is_logged_in(): bool {
  * @param bool $closeSession  Ob session_write_close() direkt nach dem Check aufgerufen wird (default: true).
  */
 function loginCheck(bool $closeSession = true): void {
-    if (!is_logged_in())
-        redirect_to("login.php");
+    if (!is_logged_in()){
+		header('Location: ' . url_login());
+		exit;
+	}
 
     // Falls du unmittelbar danach nichts mehr in $_SESSION schreibst:
     if ($closeSession) {

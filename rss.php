@@ -2,7 +2,7 @@
 require_once 'include/core.php';
 
 if (!ALLOW_RSS) {
-    header('Location: login.php');
+    header('Location: ' . url_login());
     exit;
 }
 
@@ -43,14 +43,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
      xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title><?= htmlspecialchars($SITE_TITLE, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
-    <link><?= htmlspecialchars(absolute_url('index.php'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></link>
+    <link><?= htmlspecialchars(site_url(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></link>
     <description><?= htmlspecialchars($SITE_DESC, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></description>
     <language><?= $SITE_LANG ?></language>
     <lastBuildDate><?= date(DATE_RSS) ?></lastBuildDate>
     <ttl>30</ttl>
 
     <?php foreach ($posts as $post): 
-        $link = absolute_url('entry.php?id=' . (int)$post['id']);
+        $link = url_entry(int)$post['id']);
         $guid = $link;
         $pub  = date(DATE_RSS, strtotime($post['created_at'] ?? 'now'));
 

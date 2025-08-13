@@ -71,7 +71,7 @@ template_header($post['title']);
 	<?php if ($cats): ?>
 		<p class="cats">
 			<?php foreach ($cats as $c): ?>
-				<a class="cat-badge" href="search.php?category=<?= urlencode($c) ?>">
+				<a class="cat-badge" href="<?= url_search(null,null,$c) ?>">
 					<?= htmlspecialchars($c) ?>
 				</a>
 			<?php endforeach; ?>
@@ -101,14 +101,13 @@ if ($mediaItems): ?>
 <?php
 if (is_logged_in()) {
 ?>
-	<p><a class="button" href="edit.php?id=<?= $post['id'] ?>">✏️ Bearbeiten</a></p>
+	<p><a class="button" href="<?= e(url_edit($post['id'])) ?>">✏️ Bearbeiten</a></p>
 <?php
 }
 ?>
 
     <div style="margin-top: 2rem; display: flex; gap: 1rem;">
         <?php if ($prevId !== null): ?>
-            <a class="button" href="entry.php?id=<?= $prevId ?>">← Vorheriger</a>
             <a class="button" href="<?= e(url_entry($prevId)); ?>">← Vorheriger</a>
         <?php endif; ?>
 

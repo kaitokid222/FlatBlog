@@ -4,7 +4,7 @@ require_once 'include/template.php';
 
 // Falls schon eingeloggt, gleich weiterleiten
 if (is_logged_in()) {
-    header('Location: index.php');
+    header('Location: ' . site_url());
     exit;
 }
 
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     if (md5($password) === OWNER_PASSWORD) {
         login_owner();
-        header('Location: index.php');
+        header('Location: ' . site_url());
         exit;
     } else {
         $error = "Falsches Passwort.";
@@ -36,7 +36,7 @@ template_header("Login");
             <button type="submit">Einloggen</button>
         </p>
     </form>
-    <p><a class="button" href="index.php">Zurück zur Übersicht</a></p>
+    <p><a class="button" href="<?= site_url(); ?>">Zurück zur Übersicht</a></p>
 </div>
 <?php
 template_footer();

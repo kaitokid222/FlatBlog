@@ -83,7 +83,7 @@ if (!empty($error)) {
 		<p><label>Bild 2: <input type="file" name="image2" accept="image/*"></label></p>
 		<p><button type="submit">Veröffentlichen</button></p>
 	</form>
-	<p><a class="button" href="acp.php">Zurück</a></p>
+	<p><a class="button" href="<?= url_acp(); ?>">Zurück</a></p>
 </div>
 
 <?php

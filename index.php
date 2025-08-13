@@ -60,7 +60,7 @@ foreach ($posts as $post){
 		<?php if ($cats): ?>
 		<p class="cats">
 			<?php foreach ($cats as $c): ?>
-			<a class="cat-badge" href="search.php?category=<?= urlencode($c) ?>"><?= htmlspecialchars($c) ?></a>
+			<a class="cat-badge" href="<?= url_search(null,null,$c) ?>"><?= htmlspecialchars($c) ?></a>
 			<?php endforeach; ?>
 		</p>
 		<?php endif; ?>
@@ -70,7 +70,7 @@ foreach ($posts as $post){
 <?php } 
 if (is_logged_in()) {
 ?>
-	<p><a class="button" href="submit.php">➕ Neuen Beitrag erstellen</a></p>
+	<p><a class="button" href="<?= url_submit(); ?>">➕ Neuen Beitrag erstellen</a></p>
 <?php
 }
 ?>
@@ -84,7 +84,6 @@ if (is_logged_in()) {
         <li>
             <details>
                 <summary>
-				<?php // url_search(?int $year=null, ?int $month=null, ?string $category=null, ?int $page=null) ?>
                     <a href="<?= url_search(urlencode($year)) ?>">
 
                         <?= htmlspecialchars($year) ?> (<?= (int)$total ?>)
@@ -94,7 +93,7 @@ if (is_logged_in()) {
                 <?php foreach ($months as $monthNum => $meta){
                     if ($monthNum === '_total') continue; ?>
                     <li>
-                        <a href="search.php?year=<?= urlencode($year) ?>&month=<?= urlencode((int)$monthNum) ?>">
+                        <a href="<?= url_search($year,$monthNum) ?>">
                             <?= htmlspecialchars($meta['name']) ?> (<?= (int)$meta['count'] ?>)
                         </a>
                     </li>

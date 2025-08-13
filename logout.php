@@ -12,6 +12,6 @@ if (empty($_POST['csrf']) || !hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'
 }*/
 
 logout_owner();
-header('Location: index.php');
+header('Location: ' . site_url());
 exit;
 ?>

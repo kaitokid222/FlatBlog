@@ -9,11 +9,11 @@ template_header('Admin Control Panel');
 <div class="main-content">
     <h2>Admin Control Panel</h2>
     <ul>
-        <li><a href="submit.php">➕ Neuen Beitrag erstellen</a></li>
-		<li><a href="entrylist.php">📚 Einträge verwalten</a></li>
-        <li><a href="admin_blacklist.php">🧰 Blacklist verwalten</a></li>
-        <li><a href="index.php">🏠 Zur Startseite</a></li>
-        <li><a href="logout.php">🔒 Logout</a></li>
+        <li><a href="<?= url_submit(); ?>">➕ Neuen Beitrag erstellen</a></li>
+		<li><a href="<?= url_entrylist(); ?>">📚 Einträge verwalten</a></li>
+        <li><a href="<?= url_admin_blacklist(); ?>">🧰 Blacklist verwalten</a></li>
+        <li><a href="<?= site_url(); ?>">🏠 Zur Startseite</a></li>
+        <li><a href="<?= url_logout(); ?>">🔒 Logout</a></li>
 		<!-- More Bulletproof, aber sieht halt aus wie es aussieht -> CSS bauen! -->
 		<!--<form action="logout.php" method="post" style="display:inline">
 		  <input type="hidden" name="csrf" value="<?= $_SESSION['csrf'] ?? '' ?>">

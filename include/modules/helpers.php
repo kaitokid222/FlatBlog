@@ -32,6 +32,10 @@ function url_submit(): string {
     return url_script('submit');
 }
 
+function url_entrylist(): string {
+    return url_script('entrylist');
+}
+
 function url_rss(): string {
     return url_script('rss');
 }
@@ -44,20 +48,30 @@ function url_admin_blacklist(): string {
     return url_script('admin_blacklist');
 }
 
-
 function url_entry(int $id): string {
     // 1) Admin kann pretty URLs erzwingen
     if (PRETTY_URLS) {
         return "/entry/$id";
     }
-
     // 2) PATH_INFO verfügbar? Dann wenigstens /entry.php/2
     if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
         return "/entry.php/$id";
     }
-
     // 3) Fallback: klassisch
     return "/entry.php?id=$id";
+}
+
+function url_edit(int $id): string {
+    // 1) Admin kann pretty URLs erzwingen
+    if (PRETTY_URLS) {
+        return "/edit/$id";
+    }
+    // 2) PATH_INFO verfügbar? Dann wenigstens /entry.php/2
+    if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
+        return "/edit.php/$id";
+    }
+    // 3) Fallback: klassisch
+    return "/edit.php?id=$id";
 }
 
 function url_search(?int $year=null, ?int $month=null, ?string $category=null, ?int $page=null): string {

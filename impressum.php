@@ -47,7 +47,7 @@ template_header("Impressum");
         Willkommen in der digitalen Steinzeit – genießen Sie es.
     </p>
 
-    <p><a class="button" href="index.php">← Zurück zur Übersicht</a></p>
+    <p><a class="button" href="<?= site_url(); ?>>← Zurück zur Übersicht</a></p>
 </div>
 <?php
 template_footer();

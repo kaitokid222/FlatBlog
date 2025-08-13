@@ -76,8 +76,8 @@ template_header('Einträge verwalten');
                 <td><?= htmlspecialchars($p['created_at']) ?></td>
                 <td><?= htmlspecialchars($catLabel) ?></td>
                 <td style="text-align:right;">
-                    <a class="button" href="<?=  e(url_entry((int)$p['id'])); ?>" target="_blank">Zum Beitrag</a>
-                    <a class="button" href="edit.php?id=<?= (int)$p['id'] ?>">Bearbeiten</a>
+                    <a class="button" href="<?= e(url_entry((int)$p['id'])); ?>" target="_blank">Zum Beitrag</a>
+                    <a class="button" href="<?= e(url_entry((int)$p['id'])); ?>">Bearbeiten</a>
                     <form method="post" style="display:inline;" onsubmit="return confirm('Beitrag #<?= (int)$p['id'] ?> wirklich löschen?');">
                         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
                         <button type="submit" name="list_delete" value="<?= (int)$p['id'] ?>" style="background:#b00020;">🗑️ Löschen</button>
