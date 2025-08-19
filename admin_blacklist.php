@@ -32,7 +32,7 @@ template_header('Blacklist verwalten');
         <p><textarea name="raw" rows="16" style="width:100%;"><?= e($current) ?></textarea></p>
         <p>
             <button type="submit">💾 Speichern</button>
-            <a class="button" href="<?= e(url_acp()); ?>'">⚙️ Zurück zum ACP</a>
+            <a class="button" href="<?= e(url_acp()) ?>">⚙️ Zurück zum ACP</a>
         </p>
     </form>
 
