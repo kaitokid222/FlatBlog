@@ -1,5 +1,109 @@
 <?php
 
+// -------- Helper für Open-Graph-Vorschau ---------
+
+/**
+ * Erstellt eine verkleinerte Kopie eines Bildes.
+ *
+ * @param string $src       Absoluter Pfad zum Quellbild
+ * @param string $dst       Absoluter Pfad zur Zieldatei
+ * @param int    $maxWidth  Maximale Breite
+ * @param int    $maxHeight Maximale Höhe
+ * @return bool  true bei Erfolg
+ */
+function resize_image(string $src, string $dst, int $maxWidth, int $maxHeight): bool {
+    $info = @getimagesize($src);
+    if (!$info) return false;
+
+    [$width, $height] = $info;
+    $mime = $info['mime'] ?? '';
+
+    $createMap = [
+        'image/jpeg' => 'imagecreatefromjpeg',
+        'image/png'  => 'imagecreatefrompng',
+        'image/gif'  => 'imagecreatefromgif',
+        'image/webp' => 'imagecreatefromwebp',
+    ];
+    $saveMap = [
+        'image/jpeg' => 'imagejpeg',
+        'image/png'  => 'imagepng',
+        'image/gif'  => 'imagegif',
+        'image/webp' => 'imagewebp',
+    ];
+
+    $create = $createMap[$mime] ?? null;
+    $save   = $saveMap[$mime]   ?? null;
+    if (!$create || !$save || !function_exists($create) || !function_exists($save)) {
+        return false;
+    }
+
+    $srcImg = @$create($src);
+    if (!$srcImg) return false;
+
+    $scale = min($maxWidth / $width, $maxHeight / $height, 1);
+    $newW  = (int)($width  * $scale);
+    $newH  = (int)($height * $scale);
+
+    // Kein Resize nötig → Quelle kopieren
+    if ($scale >= 1) {
+        imagedestroy($srcImg);
+        return @copy($src, $dst);
+    }
+
+    $dstImg = imagecreatetruecolor($newW, $newH);
+
+    // Transparenz unterstützen
+    if (in_array($mime, ['image/png','image/gif','image/webp'], true)) {
+        imagealphablending($dstImg, false);
+        imagesavealpha($dstImg, true);
+        $transparent = imagecolorallocatealpha($dstImg, 0, 0, 0, 127);
+        imagefilledrectangle($dstImg, 0, 0, $newW, $newH, $transparent);
+    }
+
+    imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $newW, $newH, $width, $height);
+
+    $ok = false;
+    switch ($mime) {
+        case 'image/jpeg':
+            $ok = @$save($dstImg, $dst, 85);
+            break;
+        case 'image/png':
+            $ok = @$save($dstImg, $dst, 6);
+            break;
+        case 'image/gif':
+            $ok = @$save($dstImg, $dst);
+            break;
+        case 'image/webp':
+            $ok = @$save($dstImg, $dst, 85);
+            break;
+    }
+
+    imagedestroy($srcImg);
+    imagedestroy($dstImg);
+    return $ok;
+}
+
+/**
+ * Gibt die URL eines auf Open-Graph-Maße verkleinerten Bildes zurück.
+ * Erzeugt die verkleinerte Version bei Bedarf.
+ *
+ * @param string $abs Absoluter Pfad zum Originalbild
+ * @param string $url Relative URL zum Originalbild
+ * @return string     Relative URL zur verkleinerten Version
+ */
+function ensure_og_image(string $abs, string $url): string {
+    $targetAbs = preg_replace('/(\.[^.]+)$/', '-og$1', $abs);
+    $targetUrl = preg_replace('/(\.[^.]+)$/', '-og$1', $url);
+
+    if (!file_exists($targetAbs)) {
+        if (!resize_image($abs, $targetAbs, 1080, 1080)) {
+            return $url; // Fallback
+        }
+    }
+
+    return $targetUrl;
+}
+
 function handle_entry_image_upload(array $files, int $entryId): array {
     $results = [];
 

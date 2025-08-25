@@ -3,13 +3,16 @@ require_once 'include/core.php';
 require_once 'include/template.php';
 
 $id = get_content_id_from_path('entry');
-
 $posts = get_all_posts();
-$post = null;
-$postIds = array_column($posts, 'id');
 
-// Beitrag mit passender ID finden
-foreach ($posts as $p) {
+// Nur sichtbare Beiträge für Navigation & Zugriff zulassen, wenn nicht eingeloggt
+if (!is_logged_in())
+	$visiblePosts = array_values(array_filter($posts, fn($p) => ($p['visibility'] ?? 'visible') === 'visible'));
+else
+	$visiblePosts = $posts;
+
+$post = null;
+foreach ($visiblePosts as $p) {
     if ($p['id'] == $id) {
         $post = $p;
         break;
@@ -23,13 +26,14 @@ if (!$post) {
     exit;
 }
 
-// Vorheriger / Nächster berechnen
-sort($postIds);
-$currentIndex = array_search($id, $postIds);
-$prevId = $currentIndex > 0 ? $postIds[$currentIndex - 1] : null;
-$nextId = $currentIndex < count($postIds) - 1 ? $postIds[$currentIndex + 1] : null;
+$postIds = array_column($visiblePosts, 'id');
 
-// Zufällige ID (außer aktuelle)
+// Vorheriger / Nächster berechnen (IDs aufsteigend sortiert)
+sort($postIds, SORT_NUMERIC);
+$currentIndex = array_search($id, $postIds, true);
+$prevId = ($currentIndex !== false && $currentIndex > 0) ? $postIds[$currentIndex - 1] : null;
+$nextId = ($currentIndex !== false && $currentIndex < count($postIds) - 1) ? $postIds[$currentIndex + 1] : null;
+
 $randomId = null;
 if (count($postIds) > 1) {
     do {
@@ -56,7 +60,36 @@ if (is_logged_in()){
 	}
 }
 
-template_header($post['title']);
+$mediaItems = get_entry_images((int)$post['id']);
+
+$desc = markdown_to_plaintext($post['content']);
+$desc = preg_replace('/\s+/u', ' ', trim($desc));
+$desc = mb_substr($desc, 0, 160, 'UTF-8');
+
+/*$img = '';
+foreach ($mediaItems as $m) {
+    if ($m['type'] === 'image') {
+        $img = site_url($m['url']);
+        break;
+    }
+}*/
+
+$img = '';
+foreach ($mediaItems as $m) {
+    if ($m['type'] === 'image') {
+        $img = site_url(ensure_og_image($m['abs'], $m['url']));
+        break;
+    }
+}
+
+$meta = [
+    'description' => $desc,
+    'url' => site_url(url_entry($post['id'])),
+    'image' => $img,
+];
+
+template_header($post['title'], $meta);
+//template_header($post['title']);
 ?>
 <div class="main-content">
     <article>
