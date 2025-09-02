@@ -67,8 +67,11 @@ if ($category !== null) { $titleBits[] = 'Kategorie: ' . htmlspecialchars($categ
 $pageTitle = empty($titleBits) ? 'Suche' : implode(' / ', $titleBits);
 
 
+$desc = 'Suchergebnisse für ' . $pageTitle;
+$meta = ['description' => $desc, 'url' => site_url($_SERVER['REQUEST_URI']), 'type' => 'website'];
+
 $archive = get_post_archive(is_logged_in());
-template_header('Suche – ' . $pageTitle);
+template_header('Suche – ' . $pageTitle, $meta);
 ?>
 
 <div class="main-content">

@@ -47,34 +47,29 @@ function template_footer() {
     $acpLink  = '';
     if (function_exists('is_logged_in')) {
         if (is_logged_in()) {
-            $authLink = '<a href="' . e(url_logout()) .'" title="Logout">??</a>';
-            $acpLink  = '<a href="' . e(url_acp()) .'" title="Admin Control Panel">??</a>';
-        } else {
-            $authLink = '<a href="' . e(url_login()) .'" title="Login">??</a>';
-        }
+            $authLink = '<a href="' . e(url_logout()) .'" title="Logout">🔒</a>';
+            $acpLink  = '<a href="' . e(url_acp()) .'" title="Admin Control Panel">⚙️</a>';
+        } else
+            $authLink = '<a href="' . e(url_login()) .'" title="Login">🔑</a>';
     }
-
     echo "</main>\n<footer>\n<div class=\"social-icons\">\n";
-
     // Social-Links nur, wenn gesetzt
-    if (!empty(OWNER_TWITTER)) {
-        echo '<a href="' . htmlspecialchars(OWNER_TWITTER) . '" target="_blank" rel="noopener" title="X / Twitter">??</a>' . "\n";
-    }
-    if (!empty(OWNER_GITHUB)) {
-        echo '<a href="' . htmlspecialchars(OWNER_GITHUB) . '" target="_blank" rel="noopener" title="GitHub">??</a>' . "\n";
-    }
-    if (!empty(OWNER_EMAIL)) {
-        echo '<a href="mailto:' . htmlspecialchars(OWNER_EMAIL) . '" title="E-Mail">??</a>' . "\n";
-    }
-	
-	if (defined('ALLOW_RSS') && ALLOW_RSS) {
-		echo '<a href="' . e(url_rss()) .'" title="RSS-Feed">??</a>' . "\n";
-	}
+    if (!empty(OWNER_TWITTER))
+        echo '<a href="' . htmlspecialchars(OWNER_TWITTER) . '" target="_blank" rel="noopener" title="X / Twitter">🐦</a>' . "\n";
+
+    if (!empty(OWNER_GITHUB))
+        echo '<a href="' . htmlspecialchars(OWNER_GITHUB) . '" target="_blank" rel="noopener" title="GitHub">💻</a>' . "\n";
+
+    if (!empty(OWNER_EMAIL))
+        echo '<a href="mailto:' . htmlspecialchars(OWNER_EMAIL) . '" title="E-Mail">📧</a>' . "\n";
+
+	if (defined('ALLOW_RSS') && ALLOW_RSS)
+		echo '<a href="' . e(url_rss()) .'" title="RSS-Feed">📡</a>' . "\n";
     // Impressum, ACP (nur logged in), Auth
-    echo '<a href="' . e(url_impressum()) .'" title="Impressum">??</a>' . "\n";
+    echo '<a href="' . e(url_impressum()) .'" title="Impressum">ℹ️</a>' . "\n";
     echo $acpLink . "\n";
     echo $authLink . "\n";
-	echo '<meta name="csrf-token" content="' . htmlspecialchars($_SESSION['csrf'], ENT_QUOTES) . '">' . "\n";
+    echo '<meta name="csrf-token" content="' . htmlspecialchars($_SESSION['csrf'], ENT_QUOTES) . '">' . "\n";
     echo <<<HTML
     </div>
     <p>&copy; 2025 David</p>

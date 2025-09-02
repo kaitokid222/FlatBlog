@@ -2,7 +2,13 @@
 require_once 'include/core.php';
 require_once 'include/template.php';
 
-template_header("Impressum");
+$meta = [
+    'description' => 'Kontakt und rechtliche Angaben',
+    'url' => site_url(url_impressum()),
+    'type' => 'website',
+];
+
+template_header('Impressum', $meta);
 ?>
 <div class="main-content">
     <h2>Impressum</h2>

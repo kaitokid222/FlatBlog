@@ -10,7 +10,17 @@ if (!isset($_GET['show']) || $_GET['show'] !== 'all') {
 }
 $archive = get_post_archive(is_logged_in());
 
-template_header(SITE_TITLE);
+$meta = [
+    'description' => SITE_DESC,
+    'url' => site_url(),
+    'type' => 'website',
+];
+/*$defaultOg = __DIR__ . '/content/images/default-og.png';
+if (file_exists($defaultOg)) {
+    $meta['image'] = site_url('content/images/default-og.png');
+}*/
+
+template_header(SITE_TITLE, $meta);
 ?>
 
 
