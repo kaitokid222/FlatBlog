@@ -159,6 +159,29 @@ blockquote {
 }
 ul, ol { margin-left: 1.2rem; }
 
+/* Lightbox styles */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.8);
+    display: none;
+}
+
+.lightbox:target {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #fff;
+    font-size: 2rem;
+    text-decoration: none;
+}
+
 .gallery {
     margin-top: 1rem;
     display: flex;

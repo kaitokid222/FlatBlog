@@ -114,21 +114,34 @@ template_header($post['title'], $meta);
 
 <?php
 $mediaItems = get_entry_images((int)$post['id']); // liefert [{url, type, abs}, ...]
-if ($mediaItems): ?>
+if ($mediaItems):
+    $entryUrl = e(url_entry($post['id'])); ?>
     <h4>Medien zum Beitrag:</h4>
-    <div class="gallery">
-        <?php foreach ($mediaItems as $m): ?>
-            <?php if ($m['type'] === 'video'): ?>
-                <a href="<?= htmlspecialchars($m['url']) ?>" target="_blank" class="gallery-item video">
+    <div id="gallery" class="gallery">
+        <?php $i = 1; foreach ($mediaItems as $m): ?>
+            <?php $targetId = ($m['type'] === 'video') ? "vid-$i" : "img-$i"; ?>
+            <a href="<?= $entryUrl ?>#<?= $targetId ?>" class="gallery-item <?= $m['type'] ?>">
+                <?php if ($m['type'] === 'video'): ?>
                     <video src="<?= htmlspecialchars($m['url']) ?>" preload="metadata" muted playsinline></video>
-                </a>
-            <?php else: ?>
-                <a href="<?= htmlspecialchars($m['url']) ?>" target="_blank" class="gallery-item image">
+                <?php else: ?>
                     <img src="<?= htmlspecialchars($m['url']) ?>" alt="Medienbild">
-                </a>
-            <?php endif; ?>
+                <?php endif; ?>
+            </a>
+            <?php $i++; ?>
         <?php endforeach; ?>
     </div>
+    <?php $i = 1; foreach ($mediaItems as $m): ?>
+        <?php $targetId = ($m['type'] === 'video') ? "vid-$i" : "img-$i"; ?>
+        <div id="<?= $targetId ?>" class="lightbox">
+            <?php if ($m['type'] === 'video'): ?>
+                <video src="<?= htmlspecialchars($m['url']) ?>" controls></video>
+            <?php else: ?>
+                <img src="<?= htmlspecialchars($m['url']) ?>" alt="Medienbild">
+            <?php endif; ?>
+            <a href="<?= $entryUrl ?>#gallery" class="lightbox-close">✕</a>
+        </div>
+        <?php $i++; ?>
+    <?php endforeach; ?>
 <?php endif; ?>
     </article>
 <?php

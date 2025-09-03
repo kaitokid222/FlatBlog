@@ -146,6 +146,23 @@ function _session_validate(): void {
 // Boot sofort ausführen
 secure_session_boot();
 
+// ---- Request stats logging ----
+$statsFile = dirname(__DIR__) . '/content/stats.txt';
+if (!file_exists($statsFile)) {
+    @file_put_contents($statsFile, "#date|endpoint|ip_slice\n");
+    @chmod($statsFile, 0664);
+}
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+if (strpos($ip, ':') !== false) { // IPv6
+    $parts = explode(':', $ip);
+    $ip = implode(':', array_slice($parts, 0, 4));
+} else { // IPv4
+    $ip = preg_replace('/^(\d+\.\d+)\..*/', '$1', $ip);
+}
+$endpoint = $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['REQUEST_URI'] ?? '');
+$line = sprintf("%s|%s|%s\n", date('c'), $endpoint, $ip);
+@file_put_contents($statsFile, $line, FILE_APPEND | LOCK_EX);
+
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
