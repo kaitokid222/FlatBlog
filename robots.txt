@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /login.php
 Disallow: /logout.php
+Disallow: /download.php
 Disallow: /edit.php
 Disallow: /acp.php
 Disallow: /submit.php

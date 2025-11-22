@@ -20,7 +20,7 @@ RewriteRule ^home/?$ index.php [L,QSA]
 RewriteRule ^(login|logout|acp|submit|rss|impressum|admin_blacklist)/?$ $1.php [L,QSA]
 
 # 3) Ressource + ID, z.B. /entry/2, /edit/2, /delete/2
-RewriteRule ^(entry|edit|delete)/([0-9]+)/?$ $1.php?id=$2 [L,QSA]
+RewriteRule ^(entry|edit|download|delete)/([0-9]+)/?$ $1.php?id=$2 [L,QSA]
 
 # 4) Pagination: /page/2 -> index.php?page=2
 RewriteRule ^page/([0-9]+)/?$ index.php?page=$1 [L,QSA]

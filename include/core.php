@@ -8,34 +8,28 @@ if (!defined('BASE_URL')) {
         $scheme = $https ? 'https' : 'http';
         $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $base   = rtrim(str_replace('\\','/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
-        $base   = ($base === '' || $base === '.') ? '' : $base; // '' im Webroot, sonst z.B. '/blog'
+        $base   = ($base === '' || $base === '.') ? '' : $base;
         return $scheme.'://'.$host.$base;
     }
     define('BASE_URL', _detect_base_url());
 }
 
-// Baut absolute URLs aus einem Pfad
 function site_url(string $path = ''): string {
     return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
 }
 
-// Bequemer Redirect
 function redirect_to(string $path = ''): void {
     header('Location: '.site_url($path), true, 302);
     exit;
 }
 
-// PHP-Version nicht im Header verraten
 ini_set('expose_php','0');
 
-// Fehler-Handling-Modus
-$isLive = false; // true = Produktion, false = Debug
+$isLive = false;
 
-// Log-Datei-Pfad festlegen
-$logDir  = __DIR__; // include/
+$logDir  = __DIR__;
 $logFile = $logDir . '/logs-php.log';
 
-// Falls Log-Datei nicht existiert → anlegen (mit Schreibrechten für PHP)
 if (!file_exists($logFile)) {
     if (is_writable($logDir)) {
         touch($logFile);
@@ -43,7 +37,6 @@ if (!file_exists($logFile)) {
     }
 }
 
-// Fehlerbehandlung setzen
 if ($isLive) {
     error_reporting(E_ALL);
     ini_set('display_errors', '0');
@@ -63,78 +56,73 @@ if ($isLive) {
         ini_set('error_log', $logFile);
     }
 }
-// Kein HTML im Log
+
 ini_set('html_errors', '0');
 
-// ---- Secure Session Bootstrap ----
+require_once __DIR__.'/modules/auth.php';
+require_once __DIR__.'/modules/helpers.php';
+require_once __DIR__.'/modules/text.php';
+require_once __DIR__.'/modules/media.php';
+require_once __DIR__.'/modules/content.php';
+
+secure_session_boot();
 function secure_session_boot(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
 
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
           || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
 
-    // Streng & nur Cookies (keine SID in URLs)
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.use_trans_sid', '0');
-
-    // Cookie-Flags
-    //ini_set('session.cookie_secure', $https ? '1' : '0'); // nur über HTTPS senden
-    ini_set('session.cookie_httponly', '1');              // JS hat keine Finger dran
+    ini_set('session.cookie_httponly', '1');
 
     if (PHP_VERSION_ID >= 70300) {
         session_set_cookie_params([
-            'lifetime' => 0,           // Session-Cookie
+            'lifetime' => 0,
             'path'     => '/',
             'domain'   => '',
             'secure'   => $https,
             'httponly' => true,
-            'samesite' => 'Strict',       // Egal? Dann ruhig 'Lax'
+            'samesite' => 'Strict',
         ]);
     } else {
         session_set_cookie_params(0, '/; samesite=Strict', '', $https, true);
     }
 
-    session_name('flatblog_sid');      // eigener Name, weniger Konflikte
+    session_name('flatblog_sid');
     session_start();
 
-    _session_validate();               // Idle-Timeout & Fingerprint prüfen
+    _session_validate();
 }
 
 function _session_calc_fp(): string {
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    $ip = $_SERVER['REMOTE_ADDR']      ?? '';
-    // IP grob abschneiden (geringer Drift, aber keine harte Bindung)
-    if (strpos($ip, ':') !== false) {   // IPv6
-        $ip = substr($ip, 0, 4);
-    } else {                            // IPv4
-        $ip = preg_replace('/(\d+\.\d+)\..*/', '$1', $ip ?? '');
-    }
-    return hash('sha256', $ua . '|' . $ip);
+    $ip = get_user_ip_slice();
+    $epoch = time();
+    $interval = 60 * 60 * 24 * 14;
+    $timebucket = floor($epoch / $interval);
+    return hash('sha256', $ua . '|' . $ip . '|' . $timebucket);
 }
 
 function _session_validate(): void {
     $now = time();
-    // 1) Inaktivität-Timeout
     if (isset($_SESSION['last']) && ($now - (int)$_SESSION['last']) > SESSION_IDLE_LIMIT) {
         $_SESSION = [];
         session_destroy();
-        session_start(); // frische anonyme Session
+        session_start();
     }
     $_SESSION['last'] = $now;
 
-    // 2) Fingerprint (UA + grobe IP)
     $fp = _session_calc_fp();
     if (!isset($_SESSION['fp'])) {
         $_SESSION['fp'] = $fp;
     } elseif ($_SESSION['fp'] !== $fp) {
-        // Session geklaut/gewandert → sofort invalidieren
         $_SESSION = [];
         session_destroy();
         session_start();
     }
 
-    // 3) Periodisch ID erneuern (alle 10 Min)
     if (!isset($_SESSION['regen_at'])) {
         $_SESSION['regen_at'] = $now + 600;
     } elseif ($now >= (int)$_SESSION['regen_at']) {
@@ -143,38 +131,40 @@ function _session_validate(): void {
     }
 }
 
-// Boot sofort ausführen
-secure_session_boot();
-
-// ---- Request stats logging ----
 $statsFile = dirname(__DIR__) . '/content/stats.txt';
 if (!file_exists($statsFile)) {
-    @file_put_contents($statsFile, "#date|endpoint|ip_slice\n");
+    @file_put_contents($statsFile, "#date|endpoint|third\n");
     @chmod($statsFile, 0664);
 }
-$ip = $_SERVER['REMOTE_ADDR'] ?? '';
-if (strpos($ip, ':') !== false) { // IPv6
-    $parts = explode(':', $ip);
-    $ip = implode(':', array_slice($parts, 0, 4));
-} else { // IPv4
-    $ip = preg_replace('/^(\d+\.\d+)\..*/', '$1', $ip);
-}
-$endpoint = $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['REQUEST_URI'] ?? '');
-$line = sprintf("%s|%s|%s\n", date('c'), $endpoint, $ip);
+
+$rawUri   = $_SERVER['REQUEST_URI'] ?? ($_SERVER['SCRIPT_NAME'] ?? '/');
+$endpoint = canonicalize_uri_for_log($rawUri);
+
+$third = _session_calc_fp();
+$line  = sprintf("%s|%s|%s\n", date('c'), $endpoint, $third);
 @file_put_contents($statsFile, $line, FILE_APPEND | LOCK_EX);
 
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
 
-function e(string $s): string {
-  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+function canonicalize_uri_for_log(string $uri, array $keepKeys = ['entry','id','slug','article']): string {
+    $parts = parse_url($uri);
+    $path  = ($parts['path'] ?? '/') ?: '/';
+    $q = [];
+    if (!empty($parts['query'])) {
+        parse_str($parts['query'], $params);
+        $whitelist = [];
+        foreach ($keepKeys as $k) {
+            if (array_key_exists($k, $params)) $whitelist[$k] = $params[$k];
+        }
+        if ($whitelist) {
+            ksort($whitelist);
+            $query = http_build_query($whitelist);
+            return $path . '?' . $query;
+        }
+    }
+    return $path;
 }
-
-require_once __DIR__.'/modules/auth.php';
-require_once __DIR__.'/modules/helpers.php';
-require_once __DIR__.'/modules/text.php';
-require_once __DIR__.'/modules/media.php';
-require_once __DIR__.'/modules/content.php';
 
 ?>

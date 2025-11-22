@@ -48,30 +48,38 @@ function url_admin_blacklist(): string {
     return url_script('admin_blacklist');
 }
 
+function url_stats(): string {
+    return url_script('stats');
+}
+
 function url_entry(int $id): string {
-    // 1) Admin kann pretty URLs erzwingen
     if (PRETTY_URLS) {
         return "/entry/$id";
     }
-    // 2) PATH_INFO verfÃ¼gbar? Dann wenigstens /entry.php/2
     if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
         return "/entry.php/$id";
     }
-    // 3) Fallback: klassisch
     return "/entry.php?id=$id";
 }
 
 function url_edit(int $id): string {
-    // 1) Admin kann pretty URLs erzwingen
     if (PRETTY_URLS) {
         return "/edit/$id";
     }
-    // 2) PATH_INFO verfÃ¼gbar? Dann wenigstens /entry.php/2
     if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
         return "/edit.php/$id";
     }
-    // 3) Fallback: klassisch
     return "/edit.php?id=$id";
+}
+
+function url_download(int $id): string {
+    if (PRETTY_URLS) {
+        return "/download/$id";
+    }
+    if (!empty($_SERVER['ORIG_PATH_INFO']) || !empty($_SERVER['PATH_INFO'])) {
+        return "/download.php/$id";
+    }
+    return "/download.php?id=$id";
 }
 
 function url_search(?int $year=null, ?int $month=null, ?string $category=null, ?int $page=null): string {
@@ -102,7 +110,6 @@ function url_search(?int $year=null, ?int $month=null, ?string $category=null, ?
     return "/search.php{$query}";
 }
 
-// settings.php oder helpers.php
 function app_base_path(): string {
     $base = rtrim(str_replace('\\','/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
     return ($base === '' || $base === '.') ? '' : $base; // '' wenn im Webroot, sonst z.B. '/blog'
@@ -111,4 +118,63 @@ function asset(string $path): string {
     return app_base_path() . '/' . ltrim($path, '/');
 }
 
+function get_user_ip_slice(): string
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    return ip_prefix($ip, 2, 4);
+}
+
+/*
+ * Gibt einen gekürzten IP-Präfix zurück.
+ * - IPv4: $v4_octets Oktette (Default 3 => /24)
+ * - IPv6: $v6_hextets Hextets (Default 6 => /96, i.d.R. sinnvoller sind 4 => /64)
+ */
+function ip_prefix(string $ip, int $v4_octets = 3, int $v6_hextets = 6): string {
+    $ip = trim($ip);
+
+    if (str_contains($ip, '%'))
+        $ip = explode('%', $ip, 2)[0];
+
+    if (preg_match('/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i', $ip, $m))
+        return ipv4_prefix($m[1], $v4_octets);
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+        return ipv4_prefix($ip, $v4_octets);
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
+        return ipv6_prefix($ip, $v6_hextets);
+    return '';
+}
+
+function ipv4_prefix(string $ip, int $octets): string
+{
+    $o = max(1, min(4, $octets));
+    $p = explode('.', $ip);
+    return implode('.', array_slice($p, 0, $o));
+}
+
+function ipv6_prefix(string $ip, int $hextets): string
+{
+    $h = max(1, min(8, $hextets));
+    $b = @inet_pton($ip);
+    if ($b === false || strlen($b) !== 16)
+        return '';
+    $k = $h * 16;
+    $m = str_repeat("\xFF", intdiv($k, 8));
+    $r = $k % 8;
+    if ($r > 0)
+        $m .= chr(0xFF << (8 - $r) & 0xFF); // Hier wird eine bitmaske aufgebaut
+    $m = str_pad($m, 16, "\x00");
+    $ma = $b ^ ($b & ~$m);
+    $o = [];
+    for ($i = 0; $i < 16; $i += 2) {
+        $v = (ord($ma[$i]) << 8) | ord($ma[$i + 1]);
+        $o[] = dechex($v);
+    }
+    return implode(':', array_slice($o, 0, $h));
+}
+
+function e(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 ?>

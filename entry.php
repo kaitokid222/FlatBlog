@@ -5,7 +5,6 @@ require_once 'include/template.php';
 $id = get_content_id_from_path('entry');
 $posts = get_all_posts();
 
-// Nur sichtbare Beiträge für Navigation & Zugriff zulassen, wenn nicht eingeloggt
 if (!is_logged_in())
 	$visiblePosts = array_values(array_filter($posts, fn($p) => ($p['visibility'] ?? 'visible') === 'visible'));
 else
@@ -147,7 +146,10 @@ if ($mediaItems):
 <?php
 if (is_logged_in()) {
 ?>
-	<p><a class="button" href="<?= e(url_edit($post['id'])) ?>">✏️ Bearbeiten</a></p>
+	<div style="display: flex; gap: 1rem;">
+		<p><a class="button" href="<?= e(url_edit($post['id'])) ?>">✏️ Bearbeiten</a></p>
+		<p><a class="button" href="<?= e(url_download($post['id'])) ?>">📥 Als Text herunterladen</a></p>
+	</div>
 <?php
 }
 ?>
