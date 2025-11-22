@@ -58,6 +58,41 @@ function markdown_to_plaintext(string $md): string {
     return $md;
 }
 
+if (!defined('DEFAULT_READING_SPEED_WPM')) {
+    define('DEFAULT_READING_SPEED_WPM', 200);
+}
+
+function get_amount_of_text(string $text, string $mode): int {
+    $plain = markdown_to_plaintext($text);
+    $plain = preg_replace('/\r\n?/', "\n", $plain);
+
+    return match (strtolower($mode)) {
+        'char', 'chars' => mb_strlen($plain, 'UTF-8'),
+        'word', 'words' => (
+            function (string $input): int {
+                $tokens = preg_split('/\s+/u', trim($input), -1, PREG_SPLIT_NO_EMPTY);
+                return $tokens ? count($tokens) : 0;
+            }
+        )($plain),
+        'paragraph', 'paragraphs' => (
+            function (string $input): int {
+                $paras = preg_split('/\n\s*\n/u', trim($input));
+                $paras = array_values(array_filter($paras, fn($p) => trim($p) !== ''));
+                return count($paras);
+            }
+        )($plain),
+        default => mb_strlen($plain, 'UTF-8'),
+    };
+}
+
+function get_estimated_time_to_read(string $text, int $wpm = DEFAULT_READING_SPEED_WPM): int {
+    $words = get_amount_of_text($text, 'word');
+    $speed = max(1, $wpm);
+    $minutes = (int) ceil($words / $speed);
+
+    return max(1, $minutes);
+}
+
 function get_post_preview(string $content, int $lines = 7): string {
     // In Zeilen aufteilen
     $allLines = preg_split("/\r\n|\n|\r/", trim($content));

@@ -61,17 +61,11 @@ if (is_logged_in()){
 
 $mediaItems = get_entry_images((int)$post['id']);
 
-$desc = markdown_to_plaintext($post['content']);
-$desc = preg_replace('/\s+/u', ' ', trim($desc));
-$desc = mb_substr($desc, 0, 160, 'UTF-8');
+$plainContent = markdown_to_plaintext($post['content']);
+$readingMinutes = get_estimated_time_to_read($plainContent);
 
-/*$img = '';
-foreach ($mediaItems as $m) {
-    if ($m['type'] === 'image') {
-        $img = site_url($m['url']);
-        break;
-    }
-}*/
+$desc = preg_replace('/\s+/u', ' ', trim($plainContent));
+$desc = mb_substr($desc, 0, 160, 'UTF-8');
 
 $img = '';
 foreach ($mediaItems as $m) {
@@ -88,20 +82,22 @@ $meta = [
 ];
 
 template_header($post['title'], $meta);
-//template_header($post['title']);
 ?>
 <div class="main-content">
     <article>
         <h2><?= htmlspecialchars($post['title']) ?></h2>
-        <small><?= $post['created_at'] ?> 
-		<?php if ($visLabel && $visLabel != ''): ?>
-				<span style="color:<?= $visColor ?>; margin-left:0.5rem;">
-					[ <?= $visLabel ?> ]
-				</span>
-			<?php endif; ?></small>
-	<?php $cats = get_post_categories($post) ?>
-	<?php if ($cats): ?>
-		<p class="cats">
+        <small><?= $post['created_at'] ?>
+                <?php if ($visLabel && $visLabel != ''): ?>
+                                <span style="color:<?= $visColor ?>; margin-left:0.5rem;">
+                                        [ <?= $visLabel ?> ]
+                                </span>
+                        <?php endif; ?>
+			<br>
+			<span class="reading-time">Geschätzte Lesedauer: <?= htmlspecialchars($readingMinutes) ?> Minuten</span>
+		</small>
+        <?php $cats = get_post_categories($post) ?>
+        <?php if ($cats): ?>
+                <p class="cats">
 			<?php foreach ($cats as $c): ?>
 				<a class="cat-badge" href="<?= url_search(null,null,$c) ?>">
 					<?= htmlspecialchars($c) ?>
