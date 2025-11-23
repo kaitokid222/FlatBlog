@@ -36,39 +36,44 @@ template_header(SITE_TITLE, $meta);
     <?php unset($_SESSION['flash_warn']); ?>
 <?php endif; ?>
 
-<?php 
+<?php
 foreach ($posts as $post){
-	$visLabel = '';
-	$visColor = '';
-	if (is_logged_in()){
-		switch (strtolower($post['visibility'] ?? 'visible')) {
-			case 'visible':
-				$visLabel = 'Öffentlich';
-				$visColor = 'green';
-				break;
-			case 'draft':
-				$visLabel = 'Entwurf';
-				$visColor = 'goldenrod';
-				break;
-			case 'hidden':
-				$visLabel = 'Versteckt';
-				$visColor = 'red';
-				break;
-		}
-	}
+        $visLabel = '';
+        $visColor = '';
+        if (is_logged_in()){
+                switch (strtolower($post['visibility'] ?? 'visible')) {
+                        case 'visible':
+                                $visLabel = 'Öffentlich';
+                                $visColor = 'green';
+                                break;
+                        case 'draft':
+                                $visLabel = 'Entwurf';
+                                $visColor = 'goldenrod';
+                                break;
+                        case 'hidden':
+                                $visLabel = 'Versteckt';
+                                $visColor = 'red';
+                                break;
+                }
+        }
+
+        $plainContent = markdown_to_plaintext($post['content']);
+        $readingMinutes = get_estimated_time_to_read($plainContent);
 ?>
     <article>
         <h2><a href="<?= e(url_entry($post['id']))?>"><?= e($post['title']) ?></a></h2>
-        <small><?= e($post['created_at']) ?> 
-		<?php if ($visLabel && $visLabel != ''): ?>
-				<span style="color:<?= $visColor ?>; margin-left:0.5rem;">
-					[ <?= $visLabel ?> ]
-				</span>
-			<?php endif; ?>
-		</small>
-		<?php $cats = get_post_categories($post) ?>
-		<?php if ($cats): ?>
-		<p class="cats">
+        <small><?= e($post['created_at']) ?>
+                <?php if ($visLabel && $visLabel != ''): ?>
+                                <span style="color:<?= $visColor ?>; margin-left:0.5rem;">
+                                        [ <?= $visLabel ?> ]
+                                </span>
+                        <?php endif; ?>
+                        <br>
+                        <span class="reading-time">Geschätzte Lesedauer: <?= e($readingMinutes) ?> Minuten</span>
+                </small>
+                <?php $cats = get_post_categories($post) ?>
+                <?php if ($cats): ?>
+                <p class="cats">
 			<?php foreach ($cats as $c): ?>
 			<a class="cat-badge" href="<?= url_search(null,null,$c) ?>"><?= htmlspecialchars($c) ?></a>
 			<?php endforeach; ?>

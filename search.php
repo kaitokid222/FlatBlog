@@ -81,9 +81,9 @@ template_header('Suche – ' . $pageTitle, $meta);
         <p>Keine Beiträge gefunden.</p>
     <?php }else{ ?>
         <?php foreach ($filtered as $post){
-	$visLabel = '';
-	$visColor = '';
-	if (is_logged_in()){
+        $visLabel = '';
+        $visColor = '';
+        if (is_logged_in()){
 		switch (strtolower($post['visibility'] ?? 'visible')) {
 			case 'visible':
 				$visLabel = 'Öffentlich';
@@ -96,22 +96,27 @@ template_header('Suche – ' . $pageTitle, $meta);
 			case 'hidden':
 				$visLabel = 'Versteckt';
 				$visColor = 'red';
-				break;
-		}
-	}
+                                break;
+                }
+        }
+
+        $plainContent = markdown_to_plaintext($post['content']);
+        $readingMinutes = get_estimated_time_to_read($plainContent);
 ?>
     <article>
         <h2><a href="<?= e(url_entry($post['id']))?>"><?= e($post['title']) ?></a></h2>
-        <small><?= $post['created_at'] ?> 
-		<?php if ($visLabel): ?>
-				<span style="color:<?= $visColor ?>; margin-left:0.5rem;">
-					[ <?= $visLabel ?> ]
-				</span>
-			<?php endif; ?>
-		</small>
-		<?php $cats = get_post_categories($post) ?>
-		<?php if ($cats): ?>
-		<p class="cats">
+        <small><?= e($post['created_at']) ?>
+                <?php if ($visLabel): ?>
+                                <span style="color:<?= $visColor ?>; margin-left:0.5rem;">
+                                        [ <?= $visLabel ?> ]
+                                </span>
+                        <?php endif; ?>
+                        <br>
+                        <span class="reading-time">Geschätzte Lesedauer: <?= e($readingMinutes) ?> Minuten</span>
+                </small>
+                <?php $cats = get_post_categories($post) ?>
+                <?php if ($cats): ?>
+                <p class="cats">
 			<?php foreach ($cats as $c){ ?>
 			<a class="cat-badge" href="<?= e(url_search(null, null, $c)) ?>"><?= e($c) ?></a>
 		<?php } ?>
