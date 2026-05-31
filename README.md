@@ -21,8 +21,8 @@ Visibility: Visible # Visible | Hidden | Draft
 [Leer- oder Content-Zeile]
 ...Markdown-Content...
 
-- 🖼️ **Bilder** pro Beitrag: `content/images/{ID}-1.{ext}`, `{ID}-2.{ext}`  
-Auto-Galerie als Thumbs mit Link zur Vollansicht
+- 🖼️ **Medien** pro Beitrag: `content/images/{ID}-1.{ext}`, `{ID}-2.{ext}`, `{ID}-3.{ext}`, ...  
+Auto-Galerie als Thumbs mit Link zur Vollansicht; Upload per Mehrfachauswahl
 - 🏷️ **Kategorien** aus `/content/categories.txt` (CSV) + Badges + Filter
 - 👀 **Sichtbarkeit**: Öffentlich / Versteckt / Entwurf
 - 🧹 **Pseudonymisierung**: `blacklist.txt` → ersetzt Wörter/Phrasen stabil & case-preserving
@@ -41,7 +41,7 @@ Auto-Galerie als Thumbs mit Link zur Vollansicht
     core.php, settings.php, template.php, style.css
 /content/
     texts/ # Beiträge (1.txt, 2.txt, ...)
-    images/ # Bilder (1-1.jpg, 1-2.png, ...)
+    images/ # Medien (1-1.jpg, 1-2.png, 1-3.mp4, ...)
     blacklist.txt # Pseudonymisierung
     categories.txt# Kategorienliste
 

@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         if (!$ok) {
             $error = "Speichern fehlgeschlagen.";
         } else {
-            // Bilder hochladen/überschreiben (wie gehabt)
+            // Medien hochladen/anhängen
             if (!empty($_FILES)) { handle_entry_image_upload($_FILES, $id); }
             header('Location: ' . url_entry($id));
             exit;
@@ -86,17 +86,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     }
 }
 
-/* ---------- BILD LÖSCHEN ---------- */
+/* ---------- MEDIUM LÖSCHEN ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_image'])) {
     if (!$valid_csrf()) { $_SESSION['flash_warn'] = "Ungültiger Sicherheits-Token."; header('Location: ' . url_edit($id)); exit; }
-    $idx = (int)$_POST['delete_image'];           // kommt vom Button-Wert (1 oder 2)
+    $idx = (int)$_POST['delete_image'];
     // Draft sichern (aus aktuellem Formular!)
     $_SESSION['draft_title'] = $_POST['title'] ?? $post['title'];
     $_SESSION['draft_content'] = $_POST['content'] ?? $post['content'];
 
-    if (in_array($idx, [1,2], true)) {
+    if ($idx > 0) {
         $ok = delete_entry_image($id, $idx);
-        $_SESSION['flash_warn'] = $ok ? "Bild {$idx} entfernt." : "Bild {$idx} konnte nicht entfernt werden.";
+        $_SESSION['flash_warn'] = $ok ? "Medium {$idx} entfernt." : "Medium {$idx} konnte nicht entfernt werden.";
     }
     header('Location: ' . url_edit($id));
 	exit;
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post'])) {
     }
 }
 
-/* ---------- Draft nach Bild-Löschen zurückspielen ---------- */
+/* ---------- Draft nach Medium-Löschen zurückspielen ---------- */
 if (isset($_SESSION['draft_title']) || isset($_SESSION['draft_content'])) {
     $post['title'] = $_SESSION['draft_title'] ?? $post['title'];
     $post['content'] = $_SESSION['draft_content'] ?? $post['content'];
@@ -243,9 +243,8 @@ template_header("Beitrag bearbeiten");
 
 		<h3>Medien</h3>
 		<div class="thumb-grid">
-			<?php for ($i = 1; $i <= 2; $i++):
-				$media = find_entry_image($id, $i); // ['url','abs','type'=>image|video]
-				if ($media): ?>
+			<?php foreach (get_entry_images($id) as $media):
+				$i = (int)($media['index'] ?? 0); ?>
 					<div class="thumb">
 						<a href="<?= htmlspecialchars($media['url']) ?>" target="_blank" title="Vollansicht">
 							<?php if ($media['type'] === 'video'): ?>
@@ -264,14 +263,12 @@ template_header("Beitrag bearbeiten");
 								formnovalidate
 								title="Medien löschen">✖</button>
 					</div>
-				<?php else: ?>
-					<div class="thumb empty">
-						<label>Datei <?= $i ?><br>
-							<input type="file" name="image<?= $i ?>" accept="image/*,video/mp4">
-						</label>
-					</div>
-				<?php endif;
-			endfor; ?>
+			<?php endforeach; ?>
+			<div class="thumb empty media-upload">
+				<label>Neue Medien<br>
+					<input type="file" name="media[]" accept="image/*,video/mp4" multiple>
+				</label>
+			</div>
 		</div>
 
 
@@ -283,7 +280,7 @@ template_header("Beitrag bearbeiten");
 
     <hr>
     <h3 style="color:#a00;">Beitrag löschen</h3>
-    <p><small>Achtung: Der Beitragstext und die zugehörigen Bilder (Slots 1 & 2) werden entfernt.</small></p>
+    <p><small>Achtung: Der Beitragstext und alle zugehörigen Medien werden entfernt.</small></p>
 
     <!-- SEPARATES LÖSCH-FORMULAR -->
     <form method="post"

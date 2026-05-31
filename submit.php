@@ -24,17 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // zentral speichern -> gibt neue ID zurück
         $newId = save_post($title, $content, $chosenCats, $visibility);
 
-        // Bilder hochladen (nach fester Namenskonvention entryID-1/2)
+        // Medien hochladen (entryID-1, entryID-2, ...)
         $imageUrls = handle_entry_image_upload($_FILES, $newId);
 
         // Weiterleitung oder Markdown-Hilfe anzeigen
         if ($imageUrls) {
-            template_header("Bilder eingefügt");
-            echo '<div class="main-content"><h2>Bilder erfolgreich hochgeladen</h2>';
+            template_header("Medien eingefügt");
+            echo '<div class="main-content"><h2>Medien erfolgreich hochgeladen</h2>';
             foreach ($imageUrls as $url) {
+                $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
                 echo "<p>Markdown zum Einfügen:</p>";
                 echo "<code>![Bildbeschreibung]($url)</code><br><br>";
-                echo "<img src=\"$url\" style=\"max-width:100%;\"><hr>";
+                if ($ext === 'mp4') {
+                    echo "<video src=\"$url\" controls style=\"max-width:100%;\"></video><hr>";
+                } else {
+                    echo "<img src=\"$url\" style=\"max-width:100%;\"><hr>";
+                }
             }
             echo "<p><a class=\"button\" href=\"" . e(url_entry($newId)) . "\">Beitrag ansehen</a></p>";
             template_footer();
@@ -79,8 +84,7 @@ if (!empty($error)) {
         <?php endforeach; ?>
         </fieldset>
     <?php endif; ?>
-		<p><label>Bild 1: <input type="file" name="image1" accept="image/*"></label></p>
-		<p><label>Bild 2: <input type="file" name="image2" accept="image/*"></label></p>
+		<p><label>Medien: <input type="file" name="media[]" accept="image/*,video/mp4" multiple></label></p>
 		<p><button type="submit">Veröffentlichen</button></p>
 	</form>
 	<p><a class="button" href="<?= url_acp(); ?>">Zurück</a></p>
