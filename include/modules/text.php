@@ -171,7 +171,8 @@ function perform_markdown(string $text): string {
     }, $text);
 
     // 2) HTML escapen
-    $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    // zu früh
+    //$text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
     // 3) Zeilenweise verarbeiten für Block-Elemente
     $lines = preg_split("/\r\n|\n|\r/", $text);
@@ -206,7 +207,8 @@ function perform_markdown(string $text): string {
         }
 
         // Blockquote
-        if (preg_match('/^>\s?(.*)$/', $trim, $m)) {
+        //if (preg_match('/^>\s?(.*)$/', $trim, $m)) {
+        if (preg_match('/^\s*>\s?(.*)$/u', $line, $m)) {
             $closeLists();
             if (!$inBlockquote) { $html[] = '<blockquote>'; $inBlockquote = true; }
             $html[] = '<p>' . $m[1] . '</p>';
@@ -240,7 +242,9 @@ function perform_markdown(string $text): string {
 
         // Normale Absatzzeile
         $closeLists(); // Listen enden vor normalen Absätzen
-        $html[] = '<p>' . $line . '</p>';
+        //jetzt erst excapen
+        //$html[] = '<p>' . $line . '</p>';
+        $html[] = '<p>' . htmlspecialchars($line, ENT_QUOTES) . '</p>';
     }
     // offenes Zeug schließen
     $closeLists(); $closeQuote();
@@ -269,6 +273,11 @@ function perform_markdown(string $text): string {
         $safe = htmlspecialchars($code, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $html = str_replace($key, "<pre><code>{$safe}</code></pre>", $html);
     }
+
+    //ugly debug
+    // echo "<pre>";
+    // var_dump($html);
+    // exit;
 
     return $html;
 }
