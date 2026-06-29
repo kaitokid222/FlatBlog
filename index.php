@@ -9,6 +9,7 @@ if (!isset($_GET['show']) || $_GET['show'] !== 'all') {
     $posts = array_slice($posts, 0, 3);
 }
 $archive = get_post_archive(is_logged_in());
+$draftCount = is_logged_in() ? count(array_filter($all, fn($p) => strtolower($p['visibility'] ?? 'visible') === 'draft')) : 0;
 
 $meta = [
     'description' => SITE_DESC,
@@ -89,6 +90,9 @@ if (is_logged_in()) {
 <div class="sidebar">
     <h3>Archiv</h3>
     <ul>
+    <?php if (is_logged_in()): ?>
+        <li><a href="<?= e(url_drafts()) ?>">Entw&uuml;rfe (<?= (int)$draftCount ?>)</a></li>
+    <?php endif; ?>
     <?php foreach ($archive as $year => $months){ 
         $total = $months['_total'] ?? 0; ?>
         <li>

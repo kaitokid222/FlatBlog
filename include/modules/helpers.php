@@ -36,6 +36,12 @@ function url_entrylist(): string {
     return url_script('entrylist');
 }
 
+function url_drafts(): string {
+    $base = url_search();
+    $separator = str_contains($base, '?') ? '&' : '?';
+    return $base . $separator . 'visibility=draft';
+}
+
 function url_rss(): string {
     return url_script('rss');
 }

@@ -16,7 +16,7 @@ require_once 'include/template.php';
  * - /search.php?category=php
  * - /search.php?year=2025&category=markdown
  */
-foreach (['year','y','month','m','category','cat'] as $k) {
+foreach (['year','y','month','m','category','cat','visibility'] as $k) {
     if (isset($_GET[$k]) && $_GET[$k] === '-') {
         unset($_GET[$k]);
     }
@@ -24,10 +24,17 @@ foreach (['year','y','month','m','category','cat'] as $k) {
 $_GET['page'] = norm_int($_GET['page'] ?? null) ?? 1;
 [$year, $month] = normalize_year_month($_GET);
 $category = normalize_category($_GET);
+$visibility = normalize_visibility_filter($_GET);
 $all = get_all_posts();
+$draftCount = is_logged_in() ? count(array_filter($all, fn($p) => strtolower($p['visibility'] ?? 'visible') === 'draft')) : 0;
 $allPosts = array_values(array_filter($all, fn($p) => $p['visibility'] === 'visible' || is_logged_in()));
 
-$filtered = array_values(array_filter($allPosts, function($post) use ($year, $month, $category) {
+$filtered = array_values(array_filter($allPosts, function($post) use ($year, $month, $category, $visibility) {
+    // Sichtbarkeits-Filter
+    if ($visibility !== null && strtolower($post['visibility'] ?? 'visible') !== $visibility) {
+        return false;
+    }
+
     // Jahr-/Monat-Filter
     if ($year !== null || $month !== null) {
         $ts = strtotime($post['created_at']);
@@ -57,6 +64,7 @@ $filtered = array_values(array_filter($allPosts, function($post) use ($year, $mo
 
 // Titelzeile bauen
 $titleBits = [];
+if ($visibility === 'draft') { $titleBits[] = "Entw\xc3\xbcrfe"; }
 if ($year !== null) { $titleBits[] = $year; }
 if ($month !== null) {
     // Monat als Name ausgeben
@@ -129,6 +137,9 @@ template_header('Suche – ' . $pageTitle, $meta);
 <div class="sidebar">
     <h3>Archiv</h3>
     <ul>
+    <?php if (is_logged_in()): ?>
+        <li><a href="<?= e(url_drafts()) ?>">Entw&uuml;rfe (<?= (int)$draftCount ?>)</a></li>
+    <?php endif; ?>
     <?php foreach ($archive as $year => $months){ 
         $total = $months['_total'] ?? 0; ?>
         <li>
@@ -203,6 +214,14 @@ function normalize_year_month(array $get): array {
 /**
  * Normalisiert Kategorie-Parameter (category/cat)
  */
+function normalize_visibility_filter(array $get): ?string {
+    $visibility = $get['visibility'] ?? null;
+    if ($visibility === null) return null;
+
+    $visibility = mb_strtolower(trim((string)$visibility), 'UTF-8');
+    return $visibility === 'draft' ? 'draft' : null;
+}
+
 function normalize_category(array $get): ?string {
     $cat = $get['category'] ?? $get['cat'] ?? null;
     if ($cat === null)
